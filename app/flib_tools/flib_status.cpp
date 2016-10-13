@@ -3,7 +3,7 @@
  * @author Dirk Hutter <hutter@compeng.uni-frankfurt.de>
  *
  */
-
+#include "httpClient.hpp"
 #include "flib.h"
 #include "device_operator.hpp"
 #include <iostream>
@@ -28,8 +28,12 @@ std::ostream& operator<<(std::ostream& os, flib::flib_link::data_sel_t sel) {
   return os;
 }
 
-int main(int argc, char* argv[]) {
 
+
+int main(int argc, char* argv[]) {
+    
+  HttpClient http("http://localhost:8086");
+    
   try {
 
     // display help if any parameter given
@@ -71,6 +75,7 @@ int main(int argc, char* argv[]) {
           new flib::flib_device_flesin(i)));
     }
 
+      
     size_t j = 0;
     for (auto& flib : flibs) {
       float pci_stall = flib->get_pci_stall();
@@ -96,11 +101,15 @@ int main(int argc, char* argv[]) {
         std::cout << "\n";
       }
       std::stringstream ss;
+      string test_request;
       for (size_t i = 0; i < num_links; ++i) {
         flib::flib_link_flesin::link_status_t status =
             links.at(i)->link_status();
         flib::flib_link_flesin::link_perf_t perf = links.at(i)->link_perf();
-
+        
+          
+        test_request = "flib_status,channel_up=" + status.channel_up;
+        
         ss << std::setw(2) << j << "/" << i << "  ";
         ss << std::setw(8) << links.at(i)->data_sel() << "  ";
         // status
@@ -118,6 +127,8 @@ int main(int argc, char* argv[]) {
         ss << std::setw(8) << perf.din_full << "  ";
         ss << std::setprecision(7) << std::setw(7) << perf.event_rate << "  ";
         ss << std::endl;
+          
+        http.putreq("/write?","db=mydb",test_request,"POST");
       }
       std::cout << ss.str();
       ++j;

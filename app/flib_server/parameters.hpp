@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include "httpClient.hpp"
 
 namespace po = boost::program_options;
 
