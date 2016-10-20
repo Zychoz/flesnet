@@ -15,7 +15,7 @@ string HttpClient::setadress(string prefix, string key){
     ostringstream adress;
     adress << url << prefix << key;
     
-    std::cout << url + prefix + key <<  std::endl;
+    //std::cout << url + prefix + key <<  std::endl;
     
     return adress.str();
 }
@@ -33,15 +33,14 @@ int printerror(CURLcode ret){
 
 int HttpClient::putreq(string prefix, string key, string value, string method){
     
-    std::cout << url << std::endl;
+    //std::cout << url << std::endl;
     
-    struct curl_slist *headers=NULL;
-    headers = curl_slist_append(headers, "Content-Type: text/xml");
+    const char* fields = value.c_str();
     
-    
+    //std::cout << fields << std::endl;
     
     curl_easy_setopt(hnd, CURLOPT_URL, setadress(prefix, key).c_str());
-    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, setadress(prefix, key).c_str());
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, fields);
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, strlen(value.c_str()));
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.35.0");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);

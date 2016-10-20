@@ -145,34 +145,44 @@ std::string flib_device::print_build_info() {
   char mbstr[100];
   std::strftime(mbstr, sizeof(mbstr), "%c %Z UTC%z",
                 std::localtime(&build.date));
-
+    
+    
+  //PHO start (change format of data output)
+    
+  //Iterates so the length of mbstr to replace " " with "_"
+  for(int i = 0; i < 100; i++)
+  {
+      if(mbstr[i] == ' ') {
+      mbstr[i] = '_';
+    }
+  }
+    
   std::stringstream ss;
-  ss << "FLIB Build Info:" << std::endl
-     << "Build Date:     " << mbstr << std::endl
-     << "Build Source:   " << build.user << "@" << build.host << std::endl;
+  ss << "Build_Date=" << '"' << mbstr << '"' << ","
+     << "Build_Source=\"" << build.user << "@" << build.host << "\",";
   switch (build.repo) {
   case 1:
-    ss << "Build from a git repository" << std::endl
-       << "Repository Revision: " << std::hex << std::setfill('0')
+    ss << "Built_from=\"Build_from_a_git_repository\"" << ","
+       << "Repository_Revision=\"" << std::hex << std::setfill('0')
        << std::setw(8) << build.rev[4] << std::setfill('0') << std::setw(8)
        << build.rev[3] << std::setfill('0') << std::setw(8) << build.rev[2]
        << std::setfill('0') << std::setw(8) << build.rev[1] << std::setfill('0')
-       << std::setw(8) << build.rev[0] << std::endl;
+       << std::setw(8) << build.rev[0] << "\",";
     break;
   case 2:
-    ss << "Build from a svn repository" << std::endl
-       << "Repository Revision: " << std::dec << build.rev[0] << std::endl;
+    ss << "Build_from_a_svn_repository\"" << "\","
+       << "Repository_Revision=\"" << std::dec << build.rev[0] << "\",";
     break;
   default:
-    ss << "Build from a unknown repository" << std::endl;
+    ss << "\"Build _from_an_unknown_repository\"" << ",";
     break;
   }
   if (build.clean) {
-    ss << "Repository Status:   clean " << std::endl;
+    ss << "Repository_Status=\"clean\"" << ",";
   } else {
-    ss << "Repository Status:   NOT clean " << std::endl;
+    ss << "Repository_Status=\"NOT_clean\"" << ",";
   }
-  ss << "Hardware Version:    " << std::dec << build.hw_ver;
+  ss << "Hardware_Version=" << std::dec << build.hw_ver << " ";
   return ss.str();
 }
 
@@ -209,3 +219,4 @@ bool flib_device::check_magic_number() {
   return true;
 }
 }
+

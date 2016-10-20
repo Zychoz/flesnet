@@ -14,7 +14,7 @@ add_executable(en_readout en_readout.cpp)
 #add_executable(simple_server_2 simple_server.cpp)
 
 target_link_libraries(flib_status flib-static pda httpClient ${Boost_LIBRARIES} logging)
-target_link_libraries(flib_info flib-static pda)
+target_link_libraries(flib_info flib-static pda httpClient ${Boost_LIBRARIES} logging)
 target_link_libraries(test_rf flib-static)
 target_link_libraries(en_readout flib-static)
 #target_link_libraries(simple_server_2 logging flib-static ${Boost_LIBRARIES})
