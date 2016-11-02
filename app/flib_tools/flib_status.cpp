@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
           
         unsigned int microseconds = 1000;
           
-        usleep(microseconds);
+        //usleep(microseconds);
           
         /*
         ss << std::setw(2) << j << "/" << i << "  ";
@@ -166,30 +166,31 @@ int main(int argc, char* argv[]) {
         ss << std::setprecision(7) << std::setw(7) << perf.event_rate << "  ";
         ss << std::endl;
         */
-        
+  
         //Measurement
-        ss << "Flib_Status,";
+        ss << "flib_status,";
         //Tags
         ss << "FLIB=\"FLIB_" << j << "_(" << flib->print_devinfo() << ")\",";
-        ss << "data_sel=\"" << links.at(i)->data_sel() << "\",";
-        ss << "up=\"" << status.channel_up << "\" ";
+        ss << "link=" << i << " ";
         //Fields
-        ss << std::setprecision(4) << "PCIe_idle=\"" << pci_idle << "\",stall=\"" << pci_stall
-        << "\",trans=\"" << pci_trans << "\"";
+        ss << "data_sel=\"" << links.at(i)->data_sel() << "\",";
+        ss << "up=" << status.channel_up << ",";
+        ss << std::setprecision(4) << "PCIe_idle=" << pci_idle << ",stall="
+           << pci_stall << ",trans="
+           << pci_trans << ",";
         ss << device_info;
-        ss << ",link=\"" << i << "\",";
-        ss << "he=\"" << status.hard_err << "\",";
-        ss << "se=\"" << status.soft_err << "\",";
-        ss << "eo=\"" << status.eoe_fifo_overflow << "\",";
-        ss << "do=\"" << status.d_fifo_overflow << "\",";
-        ss << "d_max=\"" << status.d_fifo_max_words << "\",";
+        ss << "he=" << status.hard_err << ",";
+        ss << "se=" << status.soft_err << ",";
+        ss << "eo=" << status.eoe_fifo_overflow << ",";
+        ss << "do=" << status.d_fifo_overflow << ",";
+        ss << "d_max=" << status.d_fifo_max_words << ",";
         // perf counters
         ss << std::setprecision(3); // percision + 5 = width
-        ss << "dma_s=\"" << perf.dma_stall << "\",";
-        ss << "data_s=\"" << perf.data_buf_stall << "\",";
-        ss << "desc_s=\"" << perf.desc_buf_stall << "\",";
-        ss << "bp=\"" << perf.din_full << "\",";
-        ss << "rate=\"" << std::setprecision(7) << perf.event_rate << "\" ";
+        ss << "dma_s=" << perf.dma_stall << ",";
+        ss << "data_s=" << perf.data_buf_stall << ",";
+        ss << "desc_s=" << perf.desc_buf_stall << ",";
+        ss << "bp=" << perf.din_full << ",";
+        ss << "rate=" << std::setprecision(7) << perf.event_rate << " ";
         //Timestamp
         ss << ms;
         ss << std::endl;
@@ -199,10 +200,10 @@ int main(int argc, char* argv[]) {
         
       }
       
-      // std::cout << ss.str();
+      //std::cout << ss.str();
       ++j;
     }
-    //std::cout << test_request << std::endl;
+    std::cout << test_request << std::endl;
     http.putreq("/write?","db=mydb",test_request,"POST");
   } catch (std::exception& e) {
     std::cout << e.what() << std::endl;

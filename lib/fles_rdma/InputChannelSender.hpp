@@ -29,7 +29,7 @@ public:
     /// The InputChannelSender default destructor.
     virtual ~InputChannelSender();
 
-    void report_status();
+    std::string report_status();
 
     void sync_buffer_positions();
 
@@ -157,4 +157,6 @@ private:
 
     SendBufferStatus previous_send_buffer_status_desc_ = SendBufferStatus();
     SendBufferStatus previous_send_buffer_status_data_ = SendBufferStatus();
+  
+
 };
