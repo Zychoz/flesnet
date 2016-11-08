@@ -8,7 +8,6 @@
 #include <cassert>
 #include <log.hpp>
 #include <string>
-using std::string;
 
 
 InputChannelSender::InputChannelSender(
@@ -49,7 +48,7 @@ InputChannelSender::~InputChannelSender()
   }
 }
 
-string InputChannelSender::report_status()
+std::string InputChannelSender::report_status()
 {
   
   constexpr auto interval = std::chrono::seconds(1);
@@ -92,11 +91,15 @@ string InputChannelSender::report_status()
   static_cast<double>(status_data.acked -
                       previous_send_buffer_status_data_.acked) /
   delta_t;
-  
 
+  struct timeval timestamp;
+  gettimeofday(&timestamp, NULL);
+  long int ms = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
   std::stringstream ss;
+  
+  ss << "inputChannelSenderStatus,";
   ss << "data_source=" << "i_" << input_index_ << " ";
-  ss << "desc_buffer_size" << data_source_.desc_buffer().size() << ",";
+  ss << "desc_buffer_size=" << data_source_.desc_buffer().size() << ",";
   ss << "cached_acked_desc=" << cached_acked_desc_ << ",";
   ss << "acked_desc=" << acked_desc_ << ",";
   ss << "sent_desc=" << sent_desc_ << ",";
@@ -109,6 +112,7 @@ string InputChannelSender::report_status()
   ss << "delta_t=" << delta_t << ",";
   ss << "rate_desc=" << rate_desc << ",";
   ss << "rate_data=" << rate_data << " ";
+  ss << ms;
   
   std::string influx_db_request;
   influx_db_request = ss.str();

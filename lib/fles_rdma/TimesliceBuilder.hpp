@@ -26,8 +26,8 @@ public:
     /// The TimesliceBuilder destructor.
     ~TimesliceBuilder();
 
-    void report_status();
-
+    std::string report_status();
+  
     void request_abort();
 
     virtual void operator()() override;

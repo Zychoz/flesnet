@@ -1,11 +1,14 @@
 // Copyright 2013, 2016 Jan de Cuveland <cmail@cuveland.de>
 
+
+#include "httpClient.hpp"
 #include "TimesliceBuilder.hpp"
 #include "InputNodeInfo.hpp"
 #include "RequestIdentifier.hpp"
 #include "TimesliceCompletion.hpp"
 #include "TimesliceWorkItem.hpp"
 #include <log.hpp>
+#include <string>
 
 TimesliceBuilder::TimesliceBuilder(
     uint64_t compute_index, TimesliceBuffer& timeslice_buffer,
@@ -22,19 +25,44 @@ TimesliceBuilder::TimesliceBuilder(
 
 TimesliceBuilder::~TimesliceBuilder() {}
 
-void TimesliceBuilder::report_status()
+std::string TimesliceBuilder::report_status()
 {
-    constexpr auto interval = std::chrono::seconds(1);
 
+    constexpr auto interval = std::chrono::seconds(1);
+  
     std::chrono::system_clock::time_point now =
         std::chrono::system_clock::now();
 
     L_(debug) << "[c" << compute_index_ << "] " << completely_written_
               << " completely written, " << acked_ << " acked";
 
+    HttpClient http("http://localhost:8086");
+    std::stringstream ss;
+    std::string influx_db_request;
+
     for (auto& c : conn_) {
         auto status_desc = c->buffer_status_desc();
         auto status_data = c->buffer_status_data();
+      
+        struct timeval timestamp;
+        gettimeofday(&timestamp, NULL);
+        long int ms = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
+      
+        ss << "timesliceBuilderStatus,computeIndex=" << compute_index_
+           << "_" << c->index() << " ";
+        ss << "descPercentage=\"" << status_desc.percentages() << "\",";
+        ss << "descTimeslices=" << status_desc.acked << ",";
+        //ss << "descTimeslices=" << human_readable_count(status_desc.acked, true, "") << ",";
+        ss << "dataPercentage=\"" << status_data.percentages() << "\",";
+        ss << "dataTimeslices=" << status_data.acked << " ";
+        //ss << "dataTimeslices=" << human_readable_count(status_data.acked, true) << ",";
+        //ss << "interval=\"" << interval.count() << "\" ";
+        ss << ms;
+      
+        influx_db_request = influx_db_request + ss.str();
+        ss.str() = "";
+        std::cout << influx_db_request << std::endl;
+      
         L_(debug) << "[c" << compute_index_ << "] desc "
                   << status_desc.percentages() << " (used..free) | "
                   << human_readable_count(status_desc.acked, true, "")
@@ -42,13 +70,17 @@ void TimesliceBuilder::report_status()
         L_(debug) << "[c" << compute_index_ << "] data "
                   << status_data.percentages() << " (used..free) | "
                   << human_readable_count(status_data.acked, true);
+        /*
         L_(info) << "[c" << compute_index_ << "_" << c->index() << "] |"
                  << bar_graph(status_data.vector(), "#._", 20) << "|"
                  << bar_graph(status_desc.vector(), "#._", 10) << "| ";
+        */
     }
-
+  
     scheduler_.add(std::bind(&TimesliceBuilder::report_status, this),
                    now + interval);
+  
+    return influx_db_request;
 }
 
 void TimesliceBuilder::request_abort()
@@ -74,7 +106,11 @@ void TimesliceBuilder::operator()()
 
         time_begin_ = std::chrono::high_resolution_clock::now();
 
-        report_status();
+        std::string request;
+        request = report_status();
+        HttpClient http("http://localhost:8086");
+        http.putreq("/write?","db=mydb",request,"POST");
+      
         while (!all_done_ || connected_ != 0) {
             if (!all_done_) {
                 poll_completion();

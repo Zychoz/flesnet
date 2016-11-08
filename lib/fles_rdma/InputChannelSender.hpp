@@ -30,7 +30,7 @@ public:
     virtual ~InputChannelSender();
 
     std::string report_status();
-
+  
     void sync_buffer_positions();
 
     virtual void operator()() override;

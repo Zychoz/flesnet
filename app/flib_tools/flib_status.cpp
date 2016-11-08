@@ -36,12 +36,7 @@ std::ostream& operator<<(std::ostream& os, flib::flib_link::data_sel_t sel) {
 int main(int argc, char* argv[]) {
     
   HttpClient http("http://localhost:8086");
-
-    
-
-    
-    
-    
+  
   try {
 
     // display help if any parameter given
@@ -122,16 +117,13 @@ int main(int argc, char* argv[]) {
       float pci_stall = flib->get_pci_stall();
       float pci_trans = flib->get_pci_trans();
       float pci_idle = 1 - pci_trans - pci_stall;
-      
-        
+
        
      /*
       if (j != 0) {
         std::cout << "\n";
       }
       */
-        
-        
       
       for (size_t i = 0; i < num_links; ++i) {
         flib::flib_link_flesin::link_status_t status =

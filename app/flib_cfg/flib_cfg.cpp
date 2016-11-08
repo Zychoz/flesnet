@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     flib->id_led(par.identify());
     flib->set_mc_time(par.mc_size());
 
-    L_(debug) << "Tatal FLIB links: " << flib->number_of_links();
+    L_(debug) << "Total FLIB links: " << flib->number_of_links();
 
     // FLIB per link configuration
     for (size_t i = 0; i < flib->number_of_links(); ++i) {
